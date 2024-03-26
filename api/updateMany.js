@@ -3,11 +3,11 @@ import handler from "../lib/handler";
 export default async (req, res) => {
 	const collection = await handler(req)
 
-	const filterById = { _id: { $in: documentIds.map(id => ObjectId(id)) } };
+	const { filter, data: update } = req.body;
 
-	const { acknowledged, modifiedCount } = await collection.updateMany(filterById, {
-		$currentDate: {
-			lastUpdate: true
+	const { acknowledged, modifiedCount } = await collection.updateMany(filter, {
+		$set: {
+			...update
 		}
 	}, { upsert: true })
 
