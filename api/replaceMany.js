@@ -3,12 +3,14 @@ import replaceOne from "./replaceOne"
 
 export default async (req, res) => {
 
-	req.body.data.forEach(doc => {
+	const docs = req.body.data;
+
+	docs.forEach(doc => {
 		replaceOne({
-			req: {
-				body: {
-					data: doc
-				}
+			body: {
+				data: doc,
+				databaseName: req.body.databaseName,
+				collectionName: req.body.collectionName
 			}
 		})
 	})

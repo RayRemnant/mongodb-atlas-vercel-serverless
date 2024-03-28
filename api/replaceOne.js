@@ -1,22 +1,17 @@
 import handler from "../lib/handler";
+import { ObjectId } from 'mongodb'
 
 export default async (req, res) => {
 	const collection = await handler(req)
 
-	const _id = req.body.data.id;
+	const { filter, data: doc } = req.body
 
-	const doc = req.body.data
-	delete doc.id;
-
-	const { acknowledged, insertedId } = await collection.replaceOne({ _id }, {
-		_id,
+	const responseData = await collection.replaceOne(filter, {
+		_id: new ObjectId(),
 		...doc,
-		$currentDate: {
-			lastUpdate: true
-		}
 	}, { upsert: true })
 
-	console.log(`replaceOne OK - ${_id}`)
+	console.log(`replaceOne OK ${JSON.stringify(responseData)}`)
 
-	res ? res.status(200).json({ acknowledged, insertedId }) : "replaceMany"
+	res ? res.status(200).json(responseData) : "replaceMany"
 }
