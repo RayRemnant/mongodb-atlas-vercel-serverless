@@ -1,19 +1,19 @@
 import handler from "../lib/handler";
-import replaceOne from "./replaceOne"
+import replaceOne from "./replaceOne";
 
 export default async (req, res) => {
-
 	const docs = req.body.data;
 
-	docs.forEach(doc => {
+	docs.forEach((doc) => {
 		replaceOne({
 			body: {
 				data: doc,
+				filter: { _id: doc._id },
 				databaseName: req.body.databaseName,
-				collectionName: req.body.collectionName
-			}
-		})
-	})
+				collectionName: req.body.collectionName,
+			},
+		});
+	});
 
 	res.status(200).json(responseData);
 };
