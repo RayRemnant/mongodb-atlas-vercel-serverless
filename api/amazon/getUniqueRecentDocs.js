@@ -1,31 +1,40 @@
 import handler from "../../lib/handler";
 
 export default async function getUniqueDocuments(req, res) {
+	const { region } = req.query; // Assuming the region parameter is passed in the query
 
-	const collection = await handler(req)
+	const collection = await handler(req);
 
-	// Aggregation pipeline to group by "asin" and select the document with the most recent "lastUpdated"
+	// Aggregation pipeline to group by "asin" and "region" and select the document with the most recent "lastUpdated"
 	const aggregationPipeline = [
 		{
-			$addFields: { // Add a new field "timestamp" containing the timestamp extracted from the "_id"
-				timestamp: { $toDate: "$_id" }
-			}
+			$match: {
+				asin: { $exists: true },
+				region: { $exists: true },
+			},
 		},
 		{
-			$sort: { timestamp: -1 } // Sort by "timestamp" in descending order
+			$addFields: {
+				timestamp: { $toDate: "$_id" },
+			},
+		},
+		{
+			$sort: { timestamp: -1 },
 		},
 		{
 			$group: {
-				_id: "$asin", // Group by "asin"
-				document: { $first: "$$ROOT" } // Select the first document in each group (which is the most recent)
-			}
+				_id: { asin: "$asin", region: "$region" }, // Group by both "asin" and "region"
+				document: { $first: "$$ROOT" },
+			},
 		},
 		{
-			$replaceRoot: { newRoot: "$document" } // Replace the root with the selected document
-		}
+			$replaceRoot: { newRoot: "$document" },
+		},
 	];
 
-	const uniqueDocuments = await collection.aggregate(aggregationPipeline).toArray();
-	console.log(uniqueDocuments)
+	const uniqueDocuments = await collection
+		.aggregate(aggregationPipeline)
+		.toArray();
+	console.log(uniqueDocuments);
 	res.send(uniqueDocuments);
 }
