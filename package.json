@@ -1,5 +1,5 @@
 {
-	"name": "mongodb-atlas",
+	"name": "mongodb-atlas-vercel-serverless",
 	"version": "1.0.0",
 	"main": "/api/index.js",
 	"scripts": {
