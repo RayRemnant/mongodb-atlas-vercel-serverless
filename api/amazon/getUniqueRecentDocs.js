@@ -11,6 +11,8 @@ export default async function getUniqueDocuments(req, res) {
 			$match: {
 				asin: { $exists: true },
 				region: { $exists: true },
+				//the status field means that the page does not exists or redirects
+				status: { $exists: false },
 			},
 		},
 		{
