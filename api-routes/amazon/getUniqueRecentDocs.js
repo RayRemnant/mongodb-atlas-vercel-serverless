@@ -1,6 +1,6 @@
 import handler from "../../lib/handler";
 
-export default async function getUniqueDocuments(req, res) {
+export default async (req, res) => {
 	const { region } = req.query; // Assuming the region parameter is passed in the query
 
 	const collection = await handler(req);
@@ -39,4 +39,4 @@ export default async function getUniqueDocuments(req, res) {
 		.toArray();
 	console.log(uniqueDocuments);
 	res.send(uniqueDocuments);
-}
+};
