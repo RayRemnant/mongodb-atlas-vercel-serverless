@@ -2,16 +2,27 @@ import handler from "../../lib/handler";
 
 export default async (req, res) => {
 	const { region } = req.query; // Assuming the region parameter is passed in the query
-
+	req.body.collectionName = "amazon";
 	const collection = await handler(req);
+
+	const { collectionName, timestamp = -1 } = req.body;
+
+	//get unique values from all asin fields in ssd-data collection
+	const asinArray = collectionName
+		? await (
+				await handler({
+					body: { databaseName: "codex", collectionName },
+				})
+		  ).distinct("asin")
+		: [];
 
 	// Aggregation pipeline to group by "asin" and "region" and select the document with the most recent "lastUpdated"
 	const aggregationPipeline = [
 		{
 			$match: {
-				asin: { $exists: true },
-				region: { $exists: true },
-				//the status field means that the page does not exists or redirects
+				// match asins present in asinArray (if provided)
+				asin: asinArray ? { $in: asinArray } : { $exists: true },
+				//if that status field is present it means that the page does not exists or redirects
 				status: { $exists: false },
 			},
 		},
@@ -21,7 +32,7 @@ export default async (req, res) => {
 			},
 		},
 		{
-			$sort: { timestamp: -1 },
+			$sort: { timestamp },
 		},
 		{
 			$group: {
@@ -37,6 +48,6 @@ export default async (req, res) => {
 	const uniqueDocuments = await collection
 		.aggregate(aggregationPipeline)
 		.toArray();
-	console.log(uniqueDocuments);
+	//console.log(uniqueDocuments);
 	res.send(uniqueDocuments);
 };
