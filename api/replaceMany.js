@@ -1,4 +1,4 @@
-import handler from "../lib/handler";
+import handler from "../lib/handler.js";
 import replaceOne from "./replaceOne";
 
 export default async (req, res) => {

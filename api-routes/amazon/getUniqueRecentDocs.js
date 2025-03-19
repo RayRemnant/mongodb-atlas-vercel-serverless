@@ -1,4 +1,4 @@
-import handler from "../../lib/handler";
+import handler from "../../lib/handler.js";
 
 export default async (req, res) => {
 	const { region } = req.query; // Assuming the region parameter is passed in the query

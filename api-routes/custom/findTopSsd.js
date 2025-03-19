@@ -1,4 +1,4 @@
-import handler from "../../lib/handler";
+import handler from "../../lib/handler.js";
 
 export default async (req, res) => {
 	const collection = await handler(req);

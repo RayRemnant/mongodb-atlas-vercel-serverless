@@ -1,4 +1,4 @@
-import handler from "../lib/handler";
+import handler from "../lib/handler.js";
 import { ObjectId } from "mongodb";
 
 export default async (req, res) => {

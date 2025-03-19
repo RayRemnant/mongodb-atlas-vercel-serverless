@@ -1,4 +1,4 @@
-import getCollection from "../../lib/getCollection";
+import getCollection from "../../lib/getCollection.js";
 
 export default async (req, res) => {
 	const { origin, destination } = req.body;
