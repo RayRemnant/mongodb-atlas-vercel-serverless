@@ -3,7 +3,7 @@ import handler from "../lib/handler.js";
 export default async (req, res) => {
 	const collection = await handler(req);
 
-	const { filter, data: update } = req.body;
+	const { filter, upsert, data: update } = req.body;
 
 	console.log(filter, update);
 
@@ -14,7 +14,7 @@ export default async (req, res) => {
 				...update,
 			},
 		},
-		{ upsert: true }
+		{ upsert }
 	);
 
 	res.status(200).json({ acknowledged, insertedId });
