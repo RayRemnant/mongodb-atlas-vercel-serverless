@@ -1,6 +1,6 @@
-import getUniqueRecentDocs from "../../api-routes/amazon/getUniqueRecentDocs";
-import duplicateCollection from "../../api-routes/custom/duplicateCollection";
-import findTopSsd from "../../api-routes/custom/findTopSsd";
+import getUniqueRecentDocs from "../../api-routes/amazon/getUniqueRecentDocs.js";
+import duplicateCollection from "../../api-routes/custom/duplicateCollection.js";
+import findTopSsd from "../../api-routes/custom/findTopSsd.js";
 
 export default async function handler(req, res) {
 	const { custom, route } = req.query;
