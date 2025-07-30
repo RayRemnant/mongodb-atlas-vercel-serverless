@@ -7,7 +7,7 @@ export default async (req, res) => {
 
 	console.log(filter, update);
 
-	const { acknowledged, insertedId } = await collection.updateOne(
+	const { acknowledged, insertedId, matchedCount, modifiedCount } = await collection.updateOne(
 		filter,
 		{
 			$set: {
@@ -17,5 +17,5 @@ export default async (req, res) => {
 		{ upsert }
 	);
 
-	res.status(200).json({ acknowledged, insertedId });
+	res.status(200).json({ acknowledged, insertedId, matchedCount, modifiedCount });
 };
