@@ -3,7 +3,7 @@ import handler from "../../lib/handler.js";
 export default async (req, res) => {
 	const { asin } = req.body;
 
-	if(!asin) {
+	if (!asin) {
 		return res.status(400).json({ error: "asin query parameter is required" });
 	}
 
@@ -19,9 +19,6 @@ export default async (req, res) => {
 		status: { $exists: false },
 	};
 
-	let result;
-
-
 	// If region is not specified, return the most recent document for each region
 	const aggregationPipeline = [
 		{ $match: filter },
@@ -35,7 +32,7 @@ export default async (req, res) => {
 		},
 		{ $replaceRoot: { newRoot: "$doc" } }
 	];
-	result = await collection.aggregate(aggregationPipeline).toArray();
+	const result = await collection.aggregate(aggregationPipeline).toArray();
 
 	res.send(result);
 };
