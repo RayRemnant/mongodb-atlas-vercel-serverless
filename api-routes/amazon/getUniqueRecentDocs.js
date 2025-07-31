@@ -1,7 +1,6 @@
 import handler from "../../lib/handler.js";
 
 export default async (req, res) => {
-	const { region } = req.query; // Assuming the region parameter is passed in the query
 	const collection = await handler({
 		body: { databaseName: "codex", collectionName: "amazon" },
 	});
