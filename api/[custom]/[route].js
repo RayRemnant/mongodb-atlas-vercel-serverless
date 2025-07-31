@@ -1,3 +1,4 @@
+import getAllUniqueRecentDoc from "../../api-routes/amazon/getAllUniqueRecentDocs.js";
 import getUniqueRecentDocs from "../../api-routes/amazon/getUniqueRecentDocs.js";
 import getUniqueRecentDoc from "../../api-routes/amazon/getUniqueRecentDoc.js";
 import duplicateCollection from "../../api-routes/custom/duplicateCollection.js";
@@ -10,6 +11,8 @@ export default async function handler(req, res) {
 	switch (custom) {
 		case "amazon":
 			switch (route) {
+				case "getAllUniqueRecentDocs":
+					return await getAllUniqueRecentDoc(req, res);
 				case "getUniqueRecentDocs":
 					return await getUniqueRecentDocs(req, res);
 				case "getUniqueRecentDoc":
