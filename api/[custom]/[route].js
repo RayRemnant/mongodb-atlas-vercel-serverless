@@ -1,4 +1,5 @@
 import getUniqueRecentDocs from "../../api-routes/amazon/getUniqueRecentDocs.js";
+import getUniqueRecentDoc from "../../api-routes/amazon/getUniqueRecentDoc.js";
 import duplicateCollection from "../../api-routes/custom/duplicateCollection.js";
 import findTopSsd from "../../api-routes/custom/findTopSsd.js";
 
@@ -11,6 +12,8 @@ export default async function handler(req, res) {
 			switch (route) {
 				case "getUniqueRecentDocs":
 					return await getUniqueRecentDocs(req, res);
+				case "getUniqueRecentDoc":
+					return await getUniqueRecentDoc(req, res);
 			}
 		case "custom":
 			switch (route) {
