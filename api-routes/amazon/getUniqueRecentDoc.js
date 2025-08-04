@@ -1,23 +1,15 @@
 import handler from "../../lib/handler.js";
 
 export default async (req, res) => {
-	const { asin } = req.body;
+	const { filter } = req.body;
 
-	if (!asin) {
+	if (!filter || !filter.asin) {
 		return res.status(400).json({ error: "asin query parameter is required" });
 	}
 
 	const collection = await handler({
 		body: { databaseName: "codex", collectionName: "amazon" },
 	});
-
-	console.log("asin", asin)
-
-	// Build filter object
-	const filter = {
-		asin,
-		status: { $exists: false },
-	};
 
 	// If region is not specified, return the most recent document for each region
 	const aggregationPipeline = [
