@@ -4,6 +4,7 @@ import getUniqueRecentDoc from "../../api-routes/amazon/getUniqueRecentDoc.js";
 import duplicateCollection from "../../api-routes/custom/duplicateCollection.js";
 import findTopSsd from "../../api-routes/custom/findTopSsd.js";
 import getCpusWithPrice from "../../api-routes/custom/getCpusWithPrice.js";
+import getCpuFieldStats from "../../api-routes/custom/getCpuFieldStats.js";
 
 export default async function handler(req, res) {
 	const { custom, route } = req.query;
@@ -27,6 +28,8 @@ export default async function handler(req, res) {
 					return await findTopSsd(req, res);
 				case "getCpusWithPrice":
 					return await getCpusWithPrice(req, res);
+				case "getCpuFieldStats":
+					return await getCpuFieldStats(req, res);
 			}
 		default:
 			res.status(404).json(JSON.stringify({ custom, route }));

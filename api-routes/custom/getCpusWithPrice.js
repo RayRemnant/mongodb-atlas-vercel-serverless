@@ -14,16 +14,20 @@ export default async (req, res) => {
             {
                 $addFields: {
                     asinEntries: {
-                        $objectToArray: "$asins"
+                        $cond: [
+                            { $and: [{ $ne: ["$asins", null] }, { $ne: ["$asins", {}] }] },
+                            { $objectToArray: "$asins" },
+                            []
+                        ]
                     }
                 }
             },
 
-            // Step 3: Unwind the TLD entries
-            { $unwind: "$asinEntries" },
+            // Step 3: Unwind the TLD entries (preserve CPUs without ASINs)
+            { $unwind: { path: "$asinEntries", preserveNullAndEmptyArrays: true } },
 
-            // Step 4: Unwind the ASIN arrays within each TLD
-            { $unwind: "$asinEntries.v" },
+            // Step 4: Unwind the ASIN arrays within each TLD (preserve empty arrays)
+            { $unwind: { path: "$asinEntries.v", preserveNullAndEmptyArrays: true } },
 
             // Step 5: Lookup most recent price data from amazon collection
             {
@@ -59,40 +63,53 @@ export default async (req, res) => {
                 }
             },
 
-            // Step 6: Create the price data object
+            // Step 6: Create the price data object (only if ASIN exists)
             {
                 $addFields: {
                     priceDataEntry: {
-                        tld: "$asinEntries.k",
-                        source: "amazon",
-                        asin: "$asinEntries.v",
-                        price: {
-                            $ifNull: [
-                                { $arrayElemAt: ["$priceInfo.price", 0] },
-                                null
-                            ]
-                        },
-                        currency: {
-                            $switch: {
-                                branches: [
-                                    { case: { $eq: ["$asinEntries.k", "com"] }, then: "USD" },
-                                    { case: { $in: ["$asinEntries.k", ["it", "fr", "de", "es", "nl", "be", "at", "pt", "ie", "fi", "gr", "lu", "si", "sk", "ee", "lv", "lt", "cy", "mt"]] }, then: "EUR" }
-                                ],
-                                default: "USD"
-                            }
-                        },
-                        lastUpdated: {
-                            $ifNull: [
-                                { $arrayElemAt: ["$priceInfo.createdAt", 0] },
-                                null
-                            ]
-                        },
-                        available: {
-                            $ifNull: [
-                                { $ne: [{ $arrayElemAt: ["$priceInfo.price", 0] }, null] },
-                                false
-                            ]
-                        }
+                        $cond: [
+                            { 
+                                $and: [
+                                    { $ne: ["$asinEntries", null] },
+                                    { $ne: ["$asinEntries.v", null] },
+                                    { $ne: ["$asinEntries.k", null] },
+                                    { $eq: [{ $type: "$asinEntries.v" }, "string"] }
+                                ]
+                            },
+                            {
+                                tld: "$asinEntries.k",
+                                source: "amazon",
+                                asin: "$asinEntries.v",
+                                price: {
+                                    $ifNull: [
+                                        { $arrayElemAt: ["$priceInfo.price", 0] },
+                                        null
+                                    ]
+                                },
+                                currency: {
+                                    $switch: {
+                                        branches: [
+                                            { case: { $eq: ["$asinEntries.k", "com"] }, then: "USD" },
+                                            { case: { $in: ["$asinEntries.k", ["it", "fr", "de", "es", "nl", "be", "at", "pt", "ie", "fi", "gr", "lu", "si", "sk", "ee", "lv", "lt", "cy", "mt"]] }, then: "EUR" }
+                                        ],
+                                        default: "USD"
+                                    }
+                                },
+                                lastUpdated: {
+                                    $ifNull: [
+                                        { $arrayElemAt: ["$priceInfo.scrapedAt", 0] },
+                                        null
+                                    ]
+                                },
+                                available: {
+                                    $ifNull: [
+                                        { $ne: [{ $arrayElemAt: ["$priceInfo.price", 0] }, null] },
+                                        false
+                                    ]
+                                }
+                            },
+                            null
+                        ]
                     }
                 }
             },
@@ -102,7 +119,15 @@ export default async (req, res) => {
                 $group: {
                     _id: "$_id",
                     cpuDoc: { $first: "$$ROOT" },
-                    priceDataArray: { $push: "$priceDataEntry" }
+                    priceDataArray: { 
+                        $push: {
+                            $cond: [
+                                { $ne: ["$priceDataEntry", null] },
+                                "$priceDataEntry",
+                                "$$REMOVE"
+                            ]
+                        }
+                    }
                 }
             },
 
